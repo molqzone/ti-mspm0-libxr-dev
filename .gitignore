@@ -1,0 +1,17 @@
+/build/
+/.vscode/
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.elf
+*.bin
+*.hex
+*.map
+*.out
+/helloagent/
+/sdk/
