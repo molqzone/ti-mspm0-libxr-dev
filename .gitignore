@@ -14,4 +14,4 @@
 *.map
 *.out
 /helloagents/
-/sdk/
+/.cache/
