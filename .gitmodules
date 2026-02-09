@@ -1,6 +1,7 @@
 [submodule "libxr"]
 	path = libxr
 	url = https://github.com/molqzone/libxr.git
+	branch = feat/mspm0-uart
 [submodule "mspm0-sdk"]
 	path = mspm0-sdk
 	url = https://github.com/TexasInstruments/mspm0-sdk
