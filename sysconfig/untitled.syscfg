@@ -11,6 +11,8 @@
  */
 const GPIO  = scripting.addModule("/ti/driverlib/GPIO", {}, false);
 const GPIO1 = GPIO.addInstance();
+const UART  = scripting.addModule("/ti/driverlib/UART", {}, false);
+const UART1 = UART.addInstance();
 
 /**
  * Write custom configuration values to the imported modules.
@@ -25,6 +27,11 @@ const Board = scripting.addModule("/ti/driverlib/Board", {}, false);
 
 const SYSCTL = scripting.addModule("/ti/driverlib/SYSCTL", {}, false);
 
+UART1.$name             = "UART_0";
+UART1.enabledInterrupts = ["RX","TX"];
+UART1.txPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric0";
+UART1.rxPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric1";
+
 /**
  * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
@@ -35,3 +42,6 @@ Board.peripheral.$suggestSolution            = "DEBUGSS";
 Board.peripheral.swclkPin.$suggestSolution   = "j25_expansion.16";
 Board.peripheral.swdioPin.$suggestSolution   = "j25_expansion.14";
 SYSCTL.peripheral.$suggestSolution           = "SYSCTL";
+UART1.peripheral.$suggestSolution            = "UART0";
+UART1.peripheral.rxPin.$suggestSolution      = "j17_expansion.9";
+UART1.peripheral.txPin.$suggestSolution      = "j19_expansion.9";

@@ -24,11 +24,18 @@ add_executable(ti_mspm0_libxr_dev.elf
   sysconfig/ti_msp_dl_config.c
   ${STARTUP_FILE}
   ${LIBXR_DIR}/src/core/libxr_time.cpp
+  ${LIBXR_DIR}/src/core/libxr_type.cpp
+  ${LIBXR_DIR}/src/core/libxr_mem.cpp
   ${LIBXR_DIR}/src/structure/lockfree_list.cpp
   ${LIBXR_DIR}/src/system/timer.cpp
   ${LIBXR_DIR}/driver/mspm0/mspm0_timebase.cpp
   ${LIBXR_DIR}/driver/mspm0/mspm0_gpio.cpp
+  ${LIBXR_DIR}/driver/mspm0/mspm0_uart.cpp
   ${LIBXR_DIR}/driver/mspm0/mspm0_atomic_shim.c
+  ${LIBXR_DIR}/src/core/libxr_rw.cpp
+  ${LIBXR_DIR}/src/structure/list.cpp
+  ${LIBXR_DIR}/src/structure/queue.cpp
+  ${LIBXR_DIR}/src/structure/double_buffer.cpp
   ${LIBXR_DIR}/system/None/thread.cpp
   ${LIBXR_DIR}/system/None/libxr_system.cpp
   ${LIBXR_DIR}/system/None/semaphore.cpp
