@@ -13,58 +13,60 @@ extern "C" void app_main()
 
   LibXR::MSPM0GPIO led_gpio(GPIO_GRP_0_PORT, GPIO_GRP_0_PIN_0_PIN,
                             GPIO_GRP_0_PIN_0_IOMUX);
-
   (void)led_gpio.SetConfig(
       {LibXR::GPIO::Direction::OUTPUT_PUSH_PULL, LibXR::GPIO::Pull::NONE});
 
-  static uint8_t uart_rx_stage_buffer[128];
+  static uint8_t uart_rx_stage_buffer[256];
   static LibXR::MSPM0UART uart(
-      MSPM0_UART_INIT(UART_0, uart_rx_stage_buffer, sizeof(uart_rx_stage_buffer), 8,
-                      256));
+      MSPM0_UART_INIT(UART_0, uart_rx_stage_buffer, sizeof(uart_rx_stage_buffer), 16,
+                      512));
 
   static const char heartbeat[] = "[mspm0-uart] heartbeat\r\n";
   static uint8_t rx_echo_buffer[1];
 
-  bool led_on = false;
-  uint32_t tick = 0;
-
-  constexpr uint32_t LOOP_DELAY_MS = 10;
+  constexpr bool ENABLE_HEARTBEAT = true;
+  constexpr uint32_t LOOP_DELAY_MS = 1;
   constexpr uint32_t HEARTBEAT_PERIOD_MS = 1000;
   constexpr uint32_t LED_PERIOD_MS = 500;
   constexpr uint32_t HEARTBEAT_TICKS = HEARTBEAT_PERIOD_MS / LOOP_DELAY_MS;
   constexpr uint32_t LED_TICKS = LED_PERIOD_MS / LOOP_DELAY_MS;
 
+  bool led_on = false;
+  uint32_t tick = 0;
+
   LibXR::ReadOperation::OperationPollingStatus read_status =
       LibXR::ReadOperation::OperationPollingStatus::READY;
   LibXR::ReadOperation read_op(read_status);
-  LibXR::WriteOperation write_op;
+  LibXR::WriteOperation echo_write_op;
+  LibXR::WriteOperation heartbeat_write_op;
 
   LibXR::RawData read_data = {rx_echo_buffer, sizeof(rx_echo_buffer)};
 
   while (true)
   {
-    if ((tick % HEARTBEAT_TICKS) == 0U)
+    bool echoed_this_cycle = false;
+
+    if (read_status == LibXR::ReadOperation::OperationPollingStatus::DONE)
     {
-      (void)uart.Write(
-          {reinterpret_cast<const uint8_t*>(heartbeat), sizeof(heartbeat) - 1}, write_op);
+      const size_t read_size = uart.read_port_->read_size_;
+      if (read_size > 0)
+      {
+        (void)uart.Write({rx_echo_buffer, read_size}, echo_write_op);
+        echoed_this_cycle = true;
+      }
+      read_status = LibXR::ReadOperation::OperationPollingStatus::READY;
     }
 
-    switch (read_status)
+    if (read_status == LibXR::ReadOperation::OperationPollingStatus::READY)
     {
-      case LibXR::ReadOperation::OperationPollingStatus::READY:
-        (void)uart.Read(read_data, read_op);
-        break;
+      (void)uart.Read(read_data, read_op);
+    }
 
-      case LibXR::ReadOperation::OperationPollingStatus::RUNNING:
-        break;
-
-      case LibXR::ReadOperation::OperationPollingStatus::DONE:
-        if (uart.read_port_->read_size_ > 0)
-        {
-          (void)uart.Write({rx_echo_buffer, uart.read_port_->read_size_}, write_op);
-        }
-        read_status = LibXR::ReadOperation::OperationPollingStatus::READY;
-        break;
+    if (ENABLE_HEARTBEAT && !echoed_this_cycle && ((tick % HEARTBEAT_TICKS) == 0U))
+    {
+      (void)uart.Write(
+          {reinterpret_cast<const uint8_t*>(heartbeat), sizeof(heartbeat) - 1},
+          heartbeat_write_op);
     }
 
     if ((tick % LED_TICKS) == 0U)

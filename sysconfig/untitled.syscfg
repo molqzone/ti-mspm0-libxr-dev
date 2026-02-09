@@ -29,6 +29,7 @@ const SYSCTL = scripting.addModule("/ti/driverlib/SYSCTL", {}, false);
 
 UART1.$name             = "UART_0";
 UART1.enabledInterrupts = ["RX","TX"];
+UART1.targetBaudRate    = 2000000;
 UART1.txPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric0";
 UART1.rxPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric1";
 
