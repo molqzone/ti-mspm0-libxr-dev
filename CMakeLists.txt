@@ -31,6 +31,7 @@ add_executable(ti_mspm0_libxr_dev.elf
   ${LIBXR_DIR}/driver/mspm0/mspm0_timebase.cpp
   ${LIBXR_DIR}/driver/mspm0/mspm0_gpio.cpp
   ${LIBXR_DIR}/driver/mspm0/mspm0_uart.cpp
+  ${LIBXR_DIR}/driver/mspm0/mspm0_i2c.cpp
   ${LIBXR_DIR}/driver/mspm0/mspm0_atomic_shim.c
   ${LIBXR_DIR}/src/core/libxr_rw.cpp
   ${LIBXR_DIR}/src/structure/list.cpp

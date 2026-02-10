@@ -77,6 +77,36 @@ extern "C" {
 
 
 
+
+/* Defines for I2C_0 */
+#define I2C_0_INST                                                          I2C1
+#define I2C_0_INST_IRQHandler                                    I2C1_IRQHandler
+#define I2C_0_INST_INT_IRQN                                        I2C1_INT_IRQn
+#define I2C_0_BUS_SPEED_HZ                                                400000
+#define GPIO_I2C_0_SDA_PORT                                                GPIOB
+#define GPIO_I2C_0_SDA_PIN                                         DL_GPIO_PIN_3
+#define GPIO_I2C_0_IOMUX_SDA                                     (IOMUX_PINCM16)
+#define GPIO_I2C_0_IOMUX_SDA_FUNC                      IOMUX_PINCM16_PF_I2C1_SDA
+#define GPIO_I2C_0_SCL_PORT                                                GPIOB
+#define GPIO_I2C_0_SCL_PIN                                         DL_GPIO_PIN_2
+#define GPIO_I2C_0_IOMUX_SCL                                     (IOMUX_PINCM15)
+#define GPIO_I2C_0_IOMUX_SCL_FUNC                      IOMUX_PINCM15_PF_I2C1_SCL
+
+/* Defines for I2C_1 */
+#define I2C_1_INST                                                          I2C0
+#define I2C_1_INST_IRQHandler                                    I2C0_IRQHandler
+#define I2C_1_INST_INT_IRQN                                        I2C0_INT_IRQn
+#define I2C_1_BUS_SPEED_HZ                                                400000
+#define GPIO_I2C_1_SDA_PORT                                                GPIOA
+#define GPIO_I2C_1_SDA_PIN                                        DL_GPIO_PIN_28
+#define GPIO_I2C_1_IOMUX_SDA                                      (IOMUX_PINCM3)
+#define GPIO_I2C_1_IOMUX_SDA_FUNC                       IOMUX_PINCM3_PF_I2C0_SDA
+#define GPIO_I2C_1_SCL_PORT                                                GPIOA
+#define GPIO_I2C_1_SCL_PIN                                        DL_GPIO_PIN_31
+#define GPIO_I2C_1_IOMUX_SCL                                      (IOMUX_PINCM6)
+#define GPIO_I2C_1_IOMUX_SCL_FUNC                       IOMUX_PINCM6_PF_I2C0_SCL
+
+
 /* Defines for UART_0 */
 #define UART_0_INST                                                        UART0
 #define UART_0_INST_FREQUENCY                                           32000000
@@ -112,6 +142,8 @@ void SYSCFG_DL_init(void);
 void SYSCFG_DL_initPower(void);
 void SYSCFG_DL_GPIO_init(void);
 void SYSCFG_DL_SYSCTL_init(void);
+void SYSCFG_DL_I2C_0_init(void);
+void SYSCFG_DL_I2C_1_init(void);
 void SYSCFG_DL_UART_0_init(void);
 
 

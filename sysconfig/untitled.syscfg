@@ -11,6 +11,9 @@
  */
 const GPIO  = scripting.addModule("/ti/driverlib/GPIO", {}, false);
 const GPIO1 = GPIO.addInstance();
+const I2C   = scripting.addModule("/ti/driverlib/I2C", {}, false);
+const I2C1  = I2C.addInstance();
+const I2C2  = I2C.addInstance();
 const UART  = scripting.addModule("/ti/driverlib/UART", {}, false);
 const UART1 = UART.addInstance();
 
@@ -25,6 +28,42 @@ GPIO1.associatedPins[0].assignedPin         = "22";
 
 const Board = scripting.addModule("/ti/driverlib/Board", {}, false);
 
+I2C1.basicEnableController   = true;
+I2C1.basicControllerBusSpeed = 400000;
+I2C1.advControllerTXFIFOTRIG = "BYTES_1";
+I2C1.intController = [
+    "ARBITRATION_LOST",
+    "NACK",
+    "RXFIFO_TRIGGER",
+    "TXFIFO_TRIGGER",
+    "RX_DONE",
+    "TX_DONE"
+];
+I2C1.$name                     = "I2C_0";
+I2C1.sdaPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric6";
+I2C1.sclPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric7";
+I2C1.peripheral.$assign        = "I2C1";
+I2C1.peripheral.sdaPin.$assign = "PB3";
+I2C1.peripheral.sclPin.$assign = "PB2";
+
+I2C2.basicEnableController   = true;
+I2C2.basicControllerBusSpeed = 400000;
+I2C2.advControllerTXFIFOTRIG = "BYTES_1";
+I2C2.intController = [
+    "ARBITRATION_LOST",
+    "NACK",
+    "RXFIFO_TRIGGER",
+    "TXFIFO_TRIGGER",
+    "RX_DONE",
+    "TX_DONE"
+];
+I2C2.$name                     = "I2C_1";
+I2C2.sdaPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric8";
+I2C2.sclPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric9";
+I2C2.peripheral.$assign        = "I2C0";
+I2C2.peripheral.sdaPin.$assign = "PA28";
+I2C2.peripheral.sclPin.$assign = "PA31";
+
 const SYSCTL = scripting.addModule("/ti/driverlib/SYSCTL", {}, false);
 
 UART1.$name             = "UART_0";
@@ -38,11 +77,18 @@ UART1.rxPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric1";
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
-GPIO1.associatedPins[0].pin.$suggestSolution = "j19_expansion.5";
-Board.peripheral.$suggestSolution            = "DEBUGSS";
-Board.peripheral.swclkPin.$suggestSolution   = "j25_expansion.16";
-Board.peripheral.swdioPin.$suggestSolution   = "j25_expansion.14";
-SYSCTL.peripheral.$suggestSolution           = "SYSCTL";
-UART1.peripheral.$suggestSolution            = "UART0";
-UART1.peripheral.rxPin.$suggestSolution      = "j17_expansion.9";
-UART1.peripheral.txPin.$suggestSolution      = "j19_expansion.9";
+GPIO1.associatedPins[0].pin.$suggestSolution        = "j19_expansion.5";
+Board.peripheral.$suggestSolution                   = "DEBUGSS";
+Board.peripheral.swclkPin.$suggestSolution          = "j25_expansion.16";
+Board.peripheral.swdioPin.$suggestSolution          = "j25_expansion.14";
+I2C1.peripheral.$suggestSolution                    = "I2C1";
+I2C1.peripheral.sdaPin.$suggestSolution             = "boosterpack.3";
+I2C1.peripheral.sclPin.$suggestSolution             = "boosterpack.4";
+I2C2.peripheral.$suggestSolution                    = "I2C0";
+I2C2.peripheral.sdaPin.$suggestSolution             = "j17_expansion.2";
+I2C2.peripheral.sclPin.$suggestSolution             = "j17_expansion.4";
+SYSCTL.peripheral.$suggestSolution                  = "SYSCTL";
+UART1.peripheral.$suggestSolution                   = "UART0";
+UART1.peripheral.rxPin.$suggestSolution             = "j17_expansion.9";
+UART1.peripheral.txPin.$suggestSolution             = "j19_expansion.9";
+
