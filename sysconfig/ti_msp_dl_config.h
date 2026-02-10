@@ -34,13 +34,13 @@
  *  ============ ti_msp_dl_config.h =============
  *  Configured MSPM0 DriverLib module declarations
  *
- *  DO NOT EDIT - This file is generated for the LP_MSPM0G3507
+ *  DO NOT EDIT - This file is generated for the MSPM0G350X
  *  by the SysConfig tool.
  */
 #ifndef ti_msp_dl_config_h
 #define ti_msp_dl_config_h
 
-#define CONFIG_LP_MSPM0G3507
+#define CONFIG_MSPM0G350X
 #define CONFIG_MSPM0G3507
 
 #if defined(__ti_version__) || defined(__TI_COMPILER_VERSION__)
@@ -73,6 +73,7 @@ extern "C" {
 #define POWER_STARTUP_DELAY                                                (16)
 
 
+
 #define CPUCLK_FREQ                                                     32000000
 
 
@@ -98,12 +99,26 @@ extern "C" {
 
 
 
-/* Port definition for Pin Group GPIO_GRP_0 */
-#define GPIO_GRP_0_PORT                                                  (GPIOB)
+/* Defines for ADC_0 */
+#define ADC_0_INST                                                          ADC0
+#define ADC_0_INST_IRQHandler                                    ADC0_IRQHandler
+#define ADC_0_INST_INT_IRQN                                      (ADC0_INT_IRQn)
+#define ADC_0_ADCMEM_0                                        DL_ADC12_MEM_IDX_0
+#define ADC_0_ADCMEM_0_REF                       DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_0_ADCMEM_0_REF_VOLTAGE_V                                         3.3
+#define GPIO_ADC_0_C2_PORT                                                 GPIOA
+#define GPIO_ADC_0_C2_PIN                                         DL_GPIO_PIN_25
+#define GPIO_ADC_0_IOMUX_C2                                      (IOMUX_PINCM55)
+#define GPIO_ADC_0_IOMUX_C2_FUNC                  (IOMUX_PINCM55_PF_UNCONNECTED)
+
+
+
+/* Port definition for Pin Group GPIO_LEDS */
+#define GPIO_LEDS_PORT                                                   (GPIOB)
 
 /* Defines for PIN_0: GPIOB.22 with pinCMx 50 on package pin 21 */
-#define GPIO_GRP_0_PIN_0_PIN                                    (DL_GPIO_PIN_22)
-#define GPIO_GRP_0_PIN_0_IOMUX                                   (IOMUX_PINCM50)
+#define GPIO_LEDS_PIN_0_PIN                                     (DL_GPIO_PIN_22)
+#define GPIO_LEDS_PIN_0_IOMUX                                    (IOMUX_PINCM50)
 
 
 /* clang-format on */
@@ -113,6 +128,7 @@ void SYSCFG_DL_initPower(void);
 void SYSCFG_DL_GPIO_init(void);
 void SYSCFG_DL_SYSCTL_init(void);
 void SYSCFG_DL_UART_0_init(void);
+void SYSCFG_DL_ADC_0_init(void);
 
 
 bool SYSCFG_DL_saveConfiguration(void);

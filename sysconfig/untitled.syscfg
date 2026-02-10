@@ -1,48 +1,48 @@
 /**
  * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
  * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
- * @cliArgs --board "/ti/boards/LP_MSPM0G3507" --product "mspm0_sdk@2.09.00.00"
- * @v2CliArgs --board "/ti/boards/LP_MSPM0G3507" --product "mspm0_sdk@2.09.00.00"
- * @versions {"tool":"1.26.2+4477"}
  */
+//@cliArgs --device "MSPM0G350X" --package "LQFP-64(PM)" --part "Default"
+//@v2CliArgs --device "MSPM0G3507" --package "LQFP-64(PM)"
+// @cliArgs --board /ti/boards/LP_MSPM0G3507 --rtos nortos
 
 /**
  * Import the modules used in this configuration.
  */
-const GPIO  = scripting.addModule("/ti/driverlib/GPIO", {}, false);
-const GPIO1 = GPIO.addInstance();
+const Board = scripting.addModule("/ti/driverlib/Board");
+const SYSCTL = scripting.addModule("/ti/driverlib/SYSCTL");
 const UART  = scripting.addModule("/ti/driverlib/UART", {}, false);
 const UART1 = UART.addInstance();
+const ADC12  = scripting.addModule("/ti/driverlib/ADC12", {}, false);
+const ADC121 = ADC12.addInstance();
+const GPIO   = scripting.addModule("/ti/driverlib/GPIO", {}, false);
+const GPIO1  = GPIO.addInstance();
 
 /**
  * Write custom configuration values to the imported modules.
  */
-GPIO1.$name                                 = "GPIO_GRP_0";
-GPIO1.associatedPins[0].$name               = "PIN_0";
-GPIO1.associatedPins[0].assignedPort        = "PORTB";
-GPIO1.associatedPins[0].assignedPortSegment = "Upper";
-GPIO1.associatedPins[0].assignedPin         = "22";
-
-const Board = scripting.addModule("/ti/driverlib/Board", {}, false);
-
-const SYSCTL = scripting.addModule("/ti/driverlib/SYSCTL", {}, false);
-
 UART1.$name             = "UART_0";
 UART1.enabledInterrupts = ["RX","TX"];
 UART1.targetBaudRate    = 2000000;
 UART1.txPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric0";
 UART1.rxPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric1";
 
-/**
- * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
- * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
- * re-solve from scratch.
- */
-GPIO1.associatedPins[0].pin.$suggestSolution = "j19_expansion.5";
-Board.peripheral.$suggestSolution            = "DEBUGSS";
-Board.peripheral.swclkPin.$suggestSolution   = "j25_expansion.16";
-Board.peripheral.swdioPin.$suggestSolution   = "j25_expansion.14";
-SYSCTL.peripheral.$suggestSolution           = "SYSCTL";
-UART1.peripheral.$suggestSolution            = "UART0";
-UART1.peripheral.rxPin.$suggestSolution      = "j17_expansion.9";
-UART1.peripheral.txPin.$suggestSolution      = "j19_expansion.9";
+ADC121.$name                      = "ADC_0";
+ADC121.sampClkSrc                 = "DL_ADC12_CLOCK_ULPCLK";
+ADC121.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
+ADC121.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";
+ADC121.sampleTime0                = "125 us";
+ADC121.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED"];
+ADC121.powerDownMode              = "DL_ADC12_POWER_DOWN_MODE_MANUAL";
+ADC121.peripheral.$assign         = "ADC0";
+ADC121.peripheral.adcPin2.$assign = "PA25";
+
+GPIO1.$name                         = "GPIO_LEDS";
+GPIO1.port                          = "PORTB";
+GPIO1.portSegment                   = "Upper";
+GPIO1.associatedPins[0].$name       = "PIN_0";
+GPIO1.associatedPins[0].assignedPin = "22";
+GPIO1.associatedPins[0].initialValue        = "SET";
+GPIO1.associatedPins[0].pin.$assign = "PB22";
+SYSCTL.forceDefaultClkConfig = true;
+SYSCTL.clockTreeEn  = true;
