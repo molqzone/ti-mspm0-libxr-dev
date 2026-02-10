@@ -52,7 +52,9 @@ size_t AppendU32Dec(char* out, size_t cap, size_t pos, uint32_t value)
 }
 
 size_t BuildAdcDiagLine(char* out, size_t cap, uint32_t mv, uint32_t min_mv,
-                        uint32_t max_mv, uint32_t avg_mv, uint32_t cnt)
+                        uint32_t max_mv, uint32_t avg_mv, uint32_t rms_mv,
+                        uint32_t cnt, uint32_t win_rms_mv, uint32_t win_id,
+                        uint32_t win_fill)
 {
   size_t pos = 0;
   pos = AppendLiteral(out, cap, pos, "[mspm0-adc] mv=");
@@ -63,8 +65,17 @@ size_t BuildAdcDiagLine(char* out, size_t cap, uint32_t mv, uint32_t min_mv,
   pos = AppendU32Dec(out, cap, pos, max_mv);
   pos = AppendLiteral(out, cap, pos, " avg=");
   pos = AppendU32Dec(out, cap, pos, avg_mv);
+  pos = AppendLiteral(out, cap, pos, " rms=");
+  pos = AppendU32Dec(out, cap, pos, rms_mv);
   pos = AppendLiteral(out, cap, pos, " cnt=");
   pos = AppendU32Dec(out, cap, pos, cnt);
+  pos = AppendLiteral(out, cap, pos, " wrms=");
+  pos = AppendU32Dec(out, cap, pos, win_rms_mv);
+  pos = AppendLiteral(out, cap, pos, " wid=");
+  pos = AppendU32Dec(out, cap, pos, win_id);
+  pos = AppendLiteral(out, cap, pos, " wfill=");
+  pos = AppendU32Dec(out, cap, pos, win_fill);
+  pos = AppendLiteral(out, cap, pos, "/256");
   pos = AppendLiteral(out, cap, pos, "\r\n");
 
   if (cap > 0)
@@ -75,7 +86,48 @@ size_t BuildAdcDiagLine(char* out, size_t cap, uint32_t mv, uint32_t min_mv,
   return pos;
 }
 
+uint32_t IsqrtU64(uint64_t value)
+{
+  uint64_t op = value;
+  uint64_t res = 0;
+  uint64_t one = static_cast<uint64_t>(1) << 62;
+
+  while (one > op)
+  {
+    one >>= 2;
+  }
+
+  while (one != 0)
+  {
+    if (op >= res + one)
+    {
+      op -= (res + one);
+      res += (one << 1);
+    }
+    res >>= 1;
+    one >>= 2;
+  }
+
+  return static_cast<uint32_t>(res);
+}
+
 }  // namespace
+
+extern "C"
+{
+volatile uint32_t g_adc_last_mv = 0;
+volatile uint32_t g_adc_min_mv = 0;
+volatile uint32_t g_adc_max_mv = 0;
+volatile uint32_t g_adc_avg_mv = 0;
+volatile uint32_t g_adc_rms_mv = 0;
+volatile uint32_t g_adc_sample_count = 0;
+volatile uint32_t g_adc_win_rms_mv = 0;
+volatile uint32_t g_adc_win_avg_mv = 0;
+volatile uint32_t g_adc_win_min_mv = 0;
+volatile uint32_t g_adc_win_max_mv = 0;
+volatile uint32_t g_adc_win_fill_count = 0;
+volatile uint32_t g_adc_win_id = 0;
+}
 
 extern "C" void app_main()
 {
@@ -101,10 +153,13 @@ extern "C" void app_main()
   constexpr uint32_t LOOP_DELAY_MS = 1;
   constexpr uint32_t HEARTBEAT_PERIOD_MS = 1000;
   constexpr uint32_t LED_PERIOD_MS = 500;
-  constexpr uint32_t ADC_PERIOD_MS = 1000;
+  constexpr uint32_t ADC_SAMPLE_PERIOD_MS = 10;
+  constexpr uint32_t ADC_REPORT_PERIOD_MS = 1000;
+  constexpr uint32_t ADC_RMS_WINDOW_SIZE = 256;
   constexpr uint32_t HEARTBEAT_TICKS = HEARTBEAT_PERIOD_MS / LOOP_DELAY_MS;
   constexpr uint32_t LED_TICKS = LED_PERIOD_MS / LOOP_DELAY_MS;
-  constexpr uint32_t ADC_TICKS = ADC_PERIOD_MS / LOOP_DELAY_MS;
+  constexpr uint32_t ADC_SAMPLE_TICKS = ADC_SAMPLE_PERIOD_MS / LOOP_DELAY_MS;
+  constexpr uint32_t ADC_REPORT_TICKS = ADC_REPORT_PERIOD_MS / LOOP_DELAY_MS;
 
   bool led_on = false;
   uint32_t tick = 0;
@@ -112,7 +167,15 @@ extern "C" void app_main()
   uint32_t adc_min_mv = UINT32_MAX;
   uint32_t adc_max_mv = 0;
   uint64_t adc_sum_mv = 0;
+  uint64_t adc_sum_sq_mv = 0;
   uint32_t adc_count = 0;
+  uint64_t adc_win_sum_mv = 0;
+  uint64_t adc_win_sum_sq_mv = 0;
+  uint32_t adc_win_count = 0;
+  uint32_t adc_win_id = 0;
+  uint32_t adc_win_min_mv = UINT32_MAX;
+  uint32_t adc_win_max_mv = 0;
+  uint32_t adc_last_win_rms_mv = 0;
 
   LibXR::ReadOperation::OperationPollingStatus read_status =
       LibXR::ReadOperation::OperationPollingStatus::READY;
@@ -149,7 +212,7 @@ extern "C" void app_main()
           heartbeat_write_op);
     }
 
-    if ((tick % ADC_TICKS) == 0U)
+    if ((tick % ADC_SAMPLE_TICKS) == 0U)
     {
       const float adc_voltage = adc.Read();
       adc_last_mv = static_cast<uint32_t>(adc_voltage * 1000.0f + 0.5f);
@@ -163,12 +226,69 @@ extern "C" void app_main()
       }
 
       adc_sum_mv += adc_last_mv;
+      adc_sum_sq_mv +=
+          static_cast<uint64_t>(adc_last_mv) * static_cast<uint64_t>(adc_last_mv);
       adc_count++;
       const uint32_t adc_avg_mv = static_cast<uint32_t>(adc_sum_mv / adc_count);
+      const uint32_t adc_rms_mv =
+          IsqrtU64(static_cast<uint64_t>(adc_sum_sq_mv / adc_count));
+
+      if (adc_last_mv < adc_win_min_mv)
+      {
+        adc_win_min_mv = adc_last_mv;
+      }
+      if (adc_last_mv > adc_win_max_mv)
+      {
+        adc_win_max_mv = adc_last_mv;
+      }
+      adc_win_sum_mv += adc_last_mv;
+      adc_win_sum_sq_mv +=
+          static_cast<uint64_t>(adc_last_mv) * static_cast<uint64_t>(adc_last_mv);
+      adc_win_count++;
+
+      if (adc_win_count >= ADC_RMS_WINDOW_SIZE)
+      {
+        const uint32_t adc_win_avg_mv =
+            static_cast<uint32_t>(adc_win_sum_mv / adc_win_count);
+        adc_last_win_rms_mv =
+            IsqrtU64(static_cast<uint64_t>(adc_win_sum_sq_mv / adc_win_count));
+        adc_win_id++;
+
+        g_adc_win_avg_mv = adc_win_avg_mv;
+        g_adc_win_rms_mv = adc_last_win_rms_mv;
+        g_adc_win_min_mv = adc_win_min_mv;
+        g_adc_win_max_mv = adc_win_max_mv;
+        g_adc_win_id = adc_win_id;
+
+        adc_win_sum_mv = 0;
+        adc_win_sum_sq_mv = 0;
+        adc_win_count = 0;
+        adc_win_min_mv = UINT32_MAX;
+        adc_win_max_mv = 0;
+      }
+
+      g_adc_last_mv = adc_last_mv;
+      g_adc_min_mv = adc_min_mv;
+      g_adc_max_mv = adc_max_mv;
+      g_adc_avg_mv = adc_avg_mv;
+      g_adc_rms_mv = adc_rms_mv;
+      g_adc_sample_count = adc_count;
+      g_adc_win_fill_count = adc_win_count;
+    }
+
+    if ((tick % ADC_REPORT_TICKS) == 0U)
+    {
+      const uint32_t adc_avg_mv =
+          (adc_count > 0U) ? static_cast<uint32_t>(adc_sum_mv / adc_count) : 0U;
+      const uint32_t adc_rms_mv =
+          (adc_count > 0U)
+              ? IsqrtU64(static_cast<uint64_t>(adc_sum_sq_mv / adc_count))
+              : 0U;
 
       const size_t line_len =
           BuildAdcDiagLine(adc_diag, sizeof(adc_diag), adc_last_mv, adc_min_mv,
-                           adc_max_mv, adc_avg_mv, adc_count);
+                           adc_max_mv, adc_avg_mv, adc_rms_mv, adc_count,
+                           adc_last_win_rms_mv, adc_win_id, adc_win_count);
 
       if (line_len > 0U)
       {
