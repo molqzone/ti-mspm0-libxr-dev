@@ -53,6 +53,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_init(void)
     SYSCFG_DL_UART_0_init();
     SYSCFG_DL_ADC_0_init();
     SYSCFG_DL_DMA_init();
+    SYSCFG_DL_WWDT_0_init();
 }
 
 
@@ -63,12 +64,14 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
     DL_GPIO_reset(GPIOB);
     DL_UART_Main_reset(UART_0_INST);
     DL_ADC12_reset(ADC_0_INST);
+    DL_WWDT_reset(WWDT_0_INST);
 
 
     DL_GPIO_enablePower(GPIOA);
     DL_GPIO_enablePower(GPIOB);
     DL_UART_Main_enablePower(UART_0_INST);
     DL_ADC12_enablePower(ADC_0_INST);
+    DL_WWDT_enablePower(WWDT_0_INST);
 
     delay_cycles(POWER_STARTUP_DELAY);
 }
@@ -182,6 +185,14 @@ SYSCONFIG_WEAK void SYSCFG_DL_DMA_CH0_init(void)
 }
 SYSCONFIG_WEAK void SYSCFG_DL_DMA_init(void){
     SYSCFG_DL_DMA_CH0_init();
+}
+
+
+SYSCONFIG_WEAK void SYSCFG_DL_WWDT_0_init(void)
+{
+    DL_WWDT_initIntervalTimerMode(WWDT_0_INST, DL_WWDT_CLOCK_DIVIDE_4,
+        DL_WWDT_TIMER_PERIOD_12_BITS, DL_WWDT_RUN_IN_SLEEP);
+
 }
 
 

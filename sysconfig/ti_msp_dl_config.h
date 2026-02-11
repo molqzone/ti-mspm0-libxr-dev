@@ -118,6 +118,12 @@ extern "C" {
 #define ADC_0_INST_DMA_TRIGGER                        (DMA_ADC0_EVT_GEN_BD_TRIG)
 
 
+
+/* Defines for WWDT_0 */
+#define WWDT_0_INST                                                      (WWDT0)
+#define WWDT_0_INT_IRQN                                        (WWDT0_INT_IRQn)
+
+
 /* Port definition for Pin Group GPIO_LEDS */
 #define GPIO_LEDS_PORT                                                   (GPIOB)
 
@@ -135,6 +141,7 @@ void SYSCFG_DL_SYSCTL_init(void);
 void SYSCFG_DL_UART_0_init(void);
 void SYSCFG_DL_ADC_0_init(void);
 void SYSCFG_DL_DMA_init(void);
+void SYSCFG_DL_WWDT_0_init(void);
 
 
 bool SYSCFG_DL_saveConfiguration(void);

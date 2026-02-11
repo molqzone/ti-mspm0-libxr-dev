@@ -16,6 +16,8 @@ const UART1 = UART.addInstance();
 const ADC12  = scripting.addModule("/ti/driverlib/ADC12", {}, false);
 const ADC121 = ADC12.addInstance();
 const DMA   = scripting.addModule("/ti/driverlib/DMA");
+const WWDT   = scripting.addModule("/ti/driverlib/WWDT", {}, false);
+const WWDT1  = WWDT.addInstance();
 const GPIO   = scripting.addModule("/ti/driverlib/GPIO", {}, false);
 const GPIO1  = GPIO.addInstance();
 
@@ -43,6 +45,12 @@ ADC121.DMA_CHANNEL.peripheral.$assign = "DMA_CH0";
 ADC121.powerDownMode              = "DL_ADC12_POWER_DOWN_MODE_MANUAL";
 ADC121.peripheral.$assign         = "ADC0";
 ADC121.peripheral.adcPin2.$assign = "PA25";
+
+WWDT1.$name             = "WWDT_0";
+WWDT1.wwdtMode          = "INTERVAL";
+WWDT1.sleepMode         = true;
+WWDT1.enabledInterrupts = false;
+WWDT1.peripheral.$assign = "WWDT0";
 
 GPIO1.$name                         = "GPIO_LEDS";
 GPIO1.port                          = "PORTB";
