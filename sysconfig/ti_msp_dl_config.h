@@ -97,6 +97,37 @@ extern "C" {
 
 
 
+/* Defines for SPI_0 */
+#define SPI_0_INST                                                         SPI1
+#define SPI_0_INST_IRQHandler                                   SPI1_IRQHandler
+#define SPI_0_INST_INT_IRQN                                       SPI1_INT_IRQn
+#define GPIO_SPI_0_PICO_PORT                                              GPIOB
+#define GPIO_SPI_0_PICO_PIN                                       DL_GPIO_PIN_8
+#define GPIO_SPI_0_IOMUX_PICO                                   (IOMUX_PINCM25)
+#define GPIO_SPI_0_IOMUX_PICO_FUNC                   IOMUX_PINCM25_PF_SPI1_PICO
+#define GPIO_SPI_0_POCI_PORT                                              GPIOB
+#define GPIO_SPI_0_POCI_PIN                                       DL_GPIO_PIN_7
+#define GPIO_SPI_0_IOMUX_POCI                                   (IOMUX_PINCM24)
+#define GPIO_SPI_0_IOMUX_POCI_FUNC                   IOMUX_PINCM24_PF_SPI1_POCI
+/* GPIO configuration for SPI_0 */
+#define GPIO_SPI_0_SCLK_PORT                                              GPIOB
+#define GPIO_SPI_0_SCLK_PIN                                       DL_GPIO_PIN_9
+#define GPIO_SPI_0_IOMUX_SCLK                                   (IOMUX_PINCM26)
+#define GPIO_SPI_0_IOMUX_SCLK_FUNC                   IOMUX_PINCM26_PF_SPI1_SCLK
+#define GPIO_SPI_0_CS0_PORT                                               GPIOB
+#define GPIO_SPI_0_CS0_PIN                                        DL_GPIO_PIN_6
+#define GPIO_SPI_0_IOMUX_CS0                                    (IOMUX_PINCM23)
+#define GPIO_SPI_0_IOMUX_CS0_FUNC                     IOMUX_PINCM23_PF_SPI1_CS0
+
+
+
+/* Defines for DMA_CH0 */
+#define DMA_CH0_CHAN_ID                                                      (0)
+#define SPI_0_INST_DMA_TRIGGER_0                              (DMA_SPI1_RX_TRIG)
+/* Defines for DMA_CH1 */
+#define DMA_CH1_CHAN_ID                                                      (1)
+#define SPI_0_INST_DMA_TRIGGER_1                              (DMA_SPI1_TX_TRIG)
+
 
 /* Port definition for Pin Group GPIO_GRP_0 */
 #define GPIO_GRP_0_PORT                                                  (GPIOB)
@@ -113,6 +144,8 @@ void SYSCFG_DL_initPower(void);
 void SYSCFG_DL_GPIO_init(void);
 void SYSCFG_DL_SYSCTL_init(void);
 void SYSCFG_DL_UART_0_init(void);
+void SYSCFG_DL_SPI_0_init(void);
+void SYSCFG_DL_DMA_init(void);
 
 
 bool SYSCFG_DL_saveConfiguration(void);

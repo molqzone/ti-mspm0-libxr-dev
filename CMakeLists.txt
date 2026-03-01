@@ -31,6 +31,7 @@ add_executable(ti_mspm0_libxr_dev.elf
   ${LIBXR_DIR}/driver/mspm0/mspm0_timebase.cpp
   ${LIBXR_DIR}/driver/mspm0/mspm0_gpio.cpp
   ${LIBXR_DIR}/driver/mspm0/mspm0_uart.cpp
+  ${LIBXR_DIR}/driver/mspm0/mspm0_spi.cpp
   ${LIBXR_DIR}/driver/mspm0/mspm0_atomic_shim.c
   ${LIBXR_DIR}/src/core/libxr_rw.cpp
   ${LIBXR_DIR}/src/structure/list.cpp
@@ -79,6 +80,9 @@ target_compile_options(ti_mspm0_libxr_dev.elf PRIVATE
   -mfloat-abi=soft
   -ffunction-sections
   -fdata-sections
+  $<$<CONFIG:Debug>:-Og>
+  $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
+  $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
   $<$<COMPILE_LANGUAGE:CXX>:-fpermissive>
 )
 
@@ -86,38 +90,15 @@ target_link_options(ti_mspm0_libxr_dev.elf PRIVATE
   -mcpu=cortex-m0plus
   -mthumb
   -mfloat-abi=soft
+  --specs=nano.specs
+  --specs=nosys.specs
   -Wl,--gc-sections
   -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/ti_mspm0_libxr_dev.map
   -T${LINKER_SCRIPT}
 )
 
-execute_process(
-  COMMAND ${CMAKE_C_COMPILER} -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -print-file-name=libgcc.a
-  OUTPUT_VARIABLE LIBGCC_ARCHIVE
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-  COMMAND ${CMAKE_C_COMPILER} -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -print-file-name=libc.a
-  OUTPUT_VARIABLE LIBC_ARCHIVE
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-  COMMAND ${CMAKE_C_COMPILER} -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -print-file-name=libm.a
-  OUTPUT_VARIABLE LIBM_ARCHIVE
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-  COMMAND ${CMAKE_C_COMPILER} -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -print-file-name=libnosys.a
-  OUTPUT_VARIABLE LIBNOSYS_ARCHIVE
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
 target_link_libraries(ti_mspm0_libxr_dev.elf PRIVATE
   ${DRIVERLIB_ARCHIVE}
-  ${LIBGCC_ARCHIVE}
-  ${LIBC_ARCHIVE}
-  ${LIBM_ARCHIVE}
-  ${LIBNOSYS_ARCHIVE}
 )
 
 find_program(CMAKE_OBJCOPY arm-none-eabi-objcopy REQUIRED)

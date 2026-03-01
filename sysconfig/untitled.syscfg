@@ -11,6 +11,8 @@
  */
 const GPIO  = scripting.addModule("/ti/driverlib/GPIO", {}, false);
 const GPIO1 = GPIO.addInstance();
+const SPI   = scripting.addModule("/ti/driverlib/SPI", {}, false);
+const SPI1  = SPI.addInstance();
 const UART  = scripting.addModule("/ti/driverlib/UART", {}, false);
 const UART1 = UART.addInstance();
 
@@ -25,6 +27,29 @@ GPIO1.associatedPins[0].assignedPin         = "22";
 
 const Board = scripting.addModule("/ti/driverlib/Board", {}, false);
 
+SPI1.$name                    = "SPI_0";
+SPI1.targetBitRate            = 16000000;
+SPI1.enableInternalLoopback   = true;
+SPI1.enabledDMAEvent1Triggers = "DL_SPI_DMA_INTERRUPT_RX";
+SPI1.enabledDMAEvent2Triggers = "DL_SPI_DMA_INTERRUPT_TX";
+SPI1.enabledInterrupts        = ["DMA_DONE_RX","DMA_DONE_TX"];
+SPI1.rxFifoThreshold          = "DL_SPI_RX_FIFO_LEVEL_ONE_FRAME";
+SPI1.txFifoThreshold          = "DL_SPI_TX_FIFO_LEVEL_ONE_FRAME";
+SPI1.sclkPinConfig.$name      = "ti_driverlib_gpio_GPIOPinGeneric2";
+SPI1.mosiPinConfig.$name      = "ti_driverlib_gpio_GPIOPinGeneric3";
+SPI1.misoPinConfig.$name      = "ti_driverlib_gpio_GPIOPinGeneric4";
+SPI1.cs0PinConfig.$name       = "ti_driverlib_gpio_GPIOPinGeneric5";
+SPI1.DMA_CHANNEL_EVENT1.$name = "DMA_CH0";
+SPI1.DMA_CHANNEL_EVENT1.addressMode = "f2b";
+SPI1.DMA_CHANNEL_EVENT1.srcLength = "BYTE";
+SPI1.DMA_CHANNEL_EVENT1.dstLength = "BYTE";
+SPI1.DMA_CHANNEL_EVENT1.peripheral.$assign = "DMA_CH0";
+SPI1.DMA_CHANNEL_EVENT2.$name = "DMA_CH1";
+SPI1.DMA_CHANNEL_EVENT2.addressMode = "b2f";
+SPI1.DMA_CHANNEL_EVENT2.srcLength = "BYTE";
+SPI1.DMA_CHANNEL_EVENT2.dstLength = "BYTE";
+SPI1.DMA_CHANNEL_EVENT2.peripheral.$assign = "DMA_CH1";
+
 const SYSCTL = scripting.addModule("/ti/driverlib/SYSCTL", {}, false);
 
 UART1.$name             = "UART_0";
@@ -38,11 +63,18 @@ UART1.rxPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric1";
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
-GPIO1.associatedPins[0].pin.$suggestSolution = "j19_expansion.5";
-Board.peripheral.$suggestSolution            = "DEBUGSS";
-Board.peripheral.swclkPin.$suggestSolution   = "j25_expansion.16";
-Board.peripheral.swdioPin.$suggestSolution   = "j25_expansion.14";
-SYSCTL.peripheral.$suggestSolution           = "SYSCTL";
-UART1.peripheral.$suggestSolution            = "UART0";
-UART1.peripheral.rxPin.$suggestSolution      = "j17_expansion.9";
-UART1.peripheral.txPin.$suggestSolution      = "j19_expansion.9";
+GPIO1.associatedPins[0].pin.$suggestSolution        = "j19_expansion.5";
+Board.peripheral.$suggestSolution                   = "DEBUGSS";
+Board.peripheral.swclkPin.$suggestSolution          = "j25_expansion.16";
+Board.peripheral.swdioPin.$suggestSolution          = "j25_expansion.14";
+SPI1.peripheral.$suggestSolution                    = "SPI1";
+SPI1.peripheral.sclkPin.$suggestSolution            = "boosterpack.7";
+SPI1.peripheral.mosiPin.$suggestSolution            = "boosterpack.15";
+SPI1.peripheral.misoPin.$suggestSolution            = "boosterpack.14";
+SPI1.peripheral.cs0Pin.$suggestSolution             = "boosterpack.13";
+SPI1.DMA_CHANNEL_EVENT1.peripheral.$suggestSolution = "DMA_CH0";
+SPI1.DMA_CHANNEL_EVENT2.peripheral.$suggestSolution = "DMA_CH1";
+SYSCTL.peripheral.$suggestSolution                  = "SYSCTL";
+UART1.peripheral.$suggestSolution                   = "UART0";
+UART1.peripheral.rxPin.$suggestSolution             = "j17_expansion.9";
+UART1.peripheral.txPin.$suggestSolution             = "j19_expansion.9";
